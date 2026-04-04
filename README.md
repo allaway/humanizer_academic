@@ -38,13 +38,13 @@ Please humanize this academic text: [your text]
 
 ## Overview
 
-Based on [Wikipedia's "Signs of AI writing"](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) guide, adapted for medical and scientific literature. Examples are derived from the EMPA-REG OUTCOME trial publications in high-impact journals.
+Based on [Wikipedia's "Signs of AI writing"](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) guide, adapted for medical and scientific literature. Examples are derived from the EMPA-REG OUTCOME trial publications and from the author's (K. Matsui) observations during academic manuscript editing.
 
 ### Key Insight from Wikipedia
 
 > "LLMs use statistical algorithms to guess what should come next. The result tends toward the most statistically likely result that applies to the widest variety of cases."
 
-## 18 Patterns Detected (with Before/After Examples)
+## 24 Patterns Detected (with Before/After Examples)
 
 ### Content Patterns
 
@@ -74,15 +74,35 @@ Based on [Wikipedia's "Signs of AI writing"](https://en.wikipedia.org/wiki/Wikip
 |---|---------|--------|-------|
 | 13 | **Em dash overuse** | "benefits—a 35% reduction—appeared early—" | Use commas or parentheses |
 | 14 | **Title Case Headings** | "Statistical Analysis And Primary Endpoints" | "Statistical analysis and primary endpoints" |
-| 15 | **Curly quotes** | "clinically significant" | "clinically significant" |
+| 15 | **Curly quotes** | \u201cclinically significant\u201d | "clinically significant" |
 
 ### Filler and Hedging
 
 | # | Pattern | Before | After |
 |---|---------|--------|-------|
 | 16 | **Filler phrases** | "In order to", "Due to the fact that" | "To", "Because" |
-| 17 | **Excessive hedging** | "may suggest... have the potential to confer" | "suggest... reduce" |
+| 17 | **Redundant multi-layered hedging** | "may suggest... have the potential to confer" | "suggest... may reduce" (keep 1-2 hedges) |
 | 18 | **Generic conclusions** | "The future looks bright" | Specific findings and implications |
+
+### LLM-Specific Word Choice Patterns (v1.1.0)
+
+| # | Pattern | Before | After |
+|---|---------|--------|-------|
+| 19 | **"linked to" → "associated with"** | "has been linked to shorter sleep duration" | "has been reported to be associated with" |
+| 20 | **"Beyond" → "In addition to"** | "Beyond the association with..." | "In addition to the association with..." |
+| 21 | **"via" → "through"** | "obtained via the online form" | "obtained through an online form" |
+| 22 | **Insufficient hedging** | "may reduce the risk of..." | "may help reduce the risk of..." |
+| 23 | **Compressed noun-dash phrases** | "a fatigue–sleepiness cycle" | "a cycle of fatigue and sleepiness" |
+| 24 | **Vague abstractions** | "suggest mutual reinforcement" | "suggest a potentially self-reinforcing cycle in which each may exacerbate the other" |
+
+### Preserved Academic Phrases (v1.1.0)
+
+The skill now explicitly **preserves** standard academic phrases that were previously over-corrected:
+
+- Transitional phrases: "Notably,", "Furthermore,", "In contrast,", etc.
+- Attribution phrases with citations: "Prior studies have shown that...", "Evidence suggests that...", etc.
+
+These are only flagged when used in excessive clusters or without supporting citations/data.
 
 ## Full Example
 
@@ -97,16 +117,19 @@ Based on [Wikipedia's "Signs of AI writing"](https://en.wikipedia.org/wiki/Wikip
 - [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) - Primary source for AI writing patterns
 - [WikiProject AI Cleanup](https://en.wikipedia.org/wiki/Wikipedia:WikiProject_AI_Cleanup) - Maintaining organization
 
-### Medical Examples Source
+### Examples Source
 
-Medical paper examples are adapted from:
+Medical paper examples (Patterns 1–18) are adapted from:
 
 > Fitchett D, Inzucchi SE, Cannon CP, et al. Empagliflozin Reduced Mortality and Hospitalization for Heart Failure Across the Spectrum of Cardiovascular Risk in the EMPA-REG OUTCOME Trial. *Circulation*. 2019;139(11):1384-1395. doi:10.1161/CIRCULATIONAHA.118.037778
 
 This article is published under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) license.
 
+Examples for Patterns 19–24 are based on the author's (K. Matsui) observations during academic manuscript editing in sleep medicine research.
+
 ## Version History
 
+- **1.1.0** - Added 6 new LLM-specific word choice patterns (19-24), preserved legitimate academic phrases, fixed hedging guidance consistency
 - **1.0.0** - Initial release adapted for academic medical writing
 
 ## License

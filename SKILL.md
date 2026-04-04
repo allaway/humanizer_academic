@@ -1,13 +1,15 @@
 ---
 name: humanizer_academic
-version: 1.0.0
+version: 1.1.0
 description: |
   Remove signs of AI-generated writing from academic medical papers. Use when editing
   or reviewing manuscripts to make them sound more natural and professionally written.
   Based on Wikipedia's "Signs of AI writing" guide, adapted for medical literature.
   Detects and fixes patterns including: inflated significance claims, superficial
   -ing analyses, vague attributions, AI vocabulary words, copula avoidance,
-  excessive hedging, and generic conclusions.
+  excessive hedging, generic conclusions, informal word choices (linked/beyond/via),
+  overly assertive causal claims, compressed noun-dash phrases, and vague abstractions.
+  Preserves legitimate academic transitions (Notably, Prior studies have shown, etc.).
 allowed-tools:
   - Read
   - Write
@@ -30,6 +32,30 @@ When given text to humanize:
 3. **Preserve meaning** - Keep the scientific content and data intact
 4. **Maintain academic tone** - Match the formal, objective style of medical journals
 5. **Be specific** - Replace vague claims with concrete data and citations
+
+## IMPORTANT: Preserve Legitimate Academic Phrases
+
+The following transitional and attribution phrases are **standard academic writing** and must NOT be removed or flagged as AI patterns. Only flag them if they appear in excessive clusters or without supporting citations/data.
+
+**Transitional phrases to preserve:**
+- "Notably, ..." / "Of note, ..."
+- "Importantly, ..."
+- "Interestingly, ..."
+- "Furthermore, ..." / "Moreover, ..."
+- "In contrast, ..." / "Conversely, ..."
+- "Nevertheless, ..." / "Nonetheless, ..."
+- "Accordingly, ..."
+- "Specifically, ..."
+
+**Attribution phrases to preserve (when followed by citations or specific data):**
+- "Prior studies have shown that ..."
+- "Previous research has demonstrated that ..."
+- "It has been reported that ..."
+- "Evidence suggests that ..."
+- "Several studies have reported ..."
+- "A growing body of evidence indicates ..."
+
+**Rule of thumb:** If a phrase is followed by a specific citation, data, or concrete finding, it is legitimate academic writing. Only flag attribution phrases when they are vague and unsupported (e.g., "Studies have shown that X is important" with no citation or specifics).
 
 ---
 
@@ -96,6 +122,8 @@ When given text to humanize:
 **Words to watch:** Industry reports, Observers have cited, Experts argue, Some critics argue, several sources/publications (when few cited)
 
 **Problem:** AI chatbots attribute opinions to vague authorities without specific sources.
+
+**IMPORTANT EXCEPTION:** Phrases like "Prior studies have shown that...", "Previous research has demonstrated...", or "Several studies have reported..." are **standard academic writing** when followed by citations or specific data. Do NOT flag these as AI patterns. Only flag attributions that are genuinely vague and unsupported.
 
 **Before:**
 > Studies have shown that SGLT2 inhibitors reduce cardiovascular events. Experts argue that these benefits may be related to hemodynamic effects. Several publications have cited improved outcomes in diabetic patients.
@@ -247,17 +275,29 @@ When given text to humanize:
 - "The study has the ability to detect" → "The study can detect"
 - "With respect to safety endpoints" → "For safety endpoints"
 
+**EXCEPTION:** Single-word academic transitions ("Notably,", "Importantly,", "Interestingly,") are standard in research papers and should NOT be removed. Only flag them when stacked excessively (e.g., three in one paragraph).
+
 ---
 
-### 17. Excessive Hedging
+### 17. Redundant Multi-layered Hedging
 
-**Problem:** Over-qualifying statements.
+**Problem:** LLMs stack multiple hedging devices in a single sentence ("may suggest", "have the potential to", "beneficial effects", "in select populations"), creating vague, non-committal prose. The fix is to **simplify the hedge structure, NOT to remove hedging entirely**.
 
-**Before:**
+**Principle:** Academic writing needs hedging — but 1–2 well-chosen hedge words per claim is enough (e.g., "may reduce" or "may help reduce"). Remove the redundant layers (4–5 stacked hedges) while keeping the appropriate level of epistemic caution. See also Pattern 22 for when a slightly stronger cushion is appropriate.
+
+**Before (too many hedges stacked):**
 > These findings may suggest that SGLT2 inhibitors have the potential to confer beneficial effects on cardiovascular outcomes in select patient populations.
 
-**After:**
-> These findings suggest that SGLT2 inhibitors reduce cardiovascular events.
+**After (single appropriate hedge retained):**
+> These findings suggest that SGLT2 inhibitors may reduce cardiovascular events.
+
+**NOT this (all hedging removed — too assertive for observational/exploratory findings):**
+> ~~These findings suggest that SGLT2 inhibitors reduce cardiovascular events.~~
+
+**Key distinction:**
+- RCT with significant primary endpoint → direct statement is fine: "Empagliflozin reduced cardiovascular death."
+- Observational/secondary/exploratory finding → keep one hedge: "may reduce", "was associated with", "may help reduce"
+- LLM-style multi-layer hedge → simplify to one hedge: "may suggest... have the potential to confer beneficial effects" → "suggest... may reduce"
 
 ---
 
@@ -270,6 +310,90 @@ When given text to humanize:
 
 **After:**
 > Empagliflozin reduced heart failure hospitalization and cardiovascular death when added to standard care. The benefit was consistent in patients with and without heart failure at baseline.
+
+---
+
+## LLM-SPECIFIC WORD CHOICE PATTERNS
+
+### 19. Informal "linked to" Instead of Academic "associated with"
+
+**Problem:** LLMs prefer the casual verb "linked to" over the more precise academic phrasing "associated with" or "reported to be associated with."
+
+**Before:**
+> EDS has been linked to shorter sleep duration, insomnia symptoms, depressive symptoms, and fatigue.
+
+**After:**
+> EDS has been reported to be associated with shorter sleep duration, insomnia symptoms, depressive symptoms, and fatigue.
+
+---
+
+### 20. Overuse of "Beyond" as a Transition
+
+**Problem:** LLMs frequently use "Beyond" to introduce additional points, which sounds informal and journalistic. In academic writing, "In addition to" is more standard.
+
+**Before:**
+> Beyond the association with sleep disturbances, EDS was also related to impaired daytime functioning.
+
+**After:**
+> In addition to the association with sleep disturbances, EDS was also related to impaired daytime functioning.
+
+---
+
+### 21. Overuse of "via" Instead of "through"
+
+**Problem:** LLMs prefer the Latin shorthand "via" where "through" or "by means of" is more natural in academic prose.
+
+**Before:**
+> Informed consent was obtained via the online form.
+
+**After:**
+> Informed consent was obtained through an online form.
+
+---
+
+### 22. Overly Assertive Causal Claims (Insufficient Hedging)
+
+**Problem:** LLMs tend to state causal or interventional implications too strongly, dropping hedging words that academic writing requires. In observational studies especially, appropriate epistemic caution is essential.
+
+**Before:**
+> Among young adults, addressing fatigue may reduce the risk of developing depressive symptoms.
+
+**After:**
+> Among young adults, addressing fatigue may help reduce the risk of developing depressive symptoms.
+
+**Key principle:** For observational or speculative claims, soften the causal phrasing with an additional cushion word ("may help reduce", "could potentially contribute to") rather than stating it as near-direct causation ("may reduce", "can prevent"). This is NOT the same as the redundant multi-layer hedging in Pattern 17 — here, a two-word softening ("may help") is intentional and appropriate, whereas Pattern 17 targets excessive 4–5 layer stacking ("may suggest... have the potential to confer beneficial effects").
+
+---
+
+### 23. Compressed Noun-Dash Phrases
+
+**Problem:** LLMs create compact compound expressions using dashes or hyphens that feel artificially condensed. Academic writing prefers expanded, readable phrasing.
+
+**Before:**
+> a reinforcing fatigue–sleepiness cycle
+
+**After:**
+> a reinforcing cycle of fatigue and sleepiness
+
+**Before:**
+> the sleep–mood–cognition pathway
+
+**After:**
+> the pathway linking sleep, mood, and cognition
+
+---
+
+### 24. Vague Abstract Expressions Without Elaboration
+
+**Problem:** LLMs make abstract claims without unpacking them. Academic writing should be explicit about what abstract terms mean in context.
+
+**Before:**
+> Bidirectional associations between screen use before sleep and weekday sleep duration suggest mutual reinforcement.
+
+**After:**
+> Bidirectional associations between screen use before sleep and weekday sleep duration suggest a potentially self-reinforcing cycle in which each may exacerbate the other.
+
+**Key principle:** When using abstract terms like "mutual reinforcement," "bidirectional relationship," or "complex interplay," always follow with a concrete explanation of the mechanism or meaning.
 
 ---
 
@@ -314,7 +438,7 @@ Provide:
 - Removed the em dash ("—")
 - Removed significance inflation ("pivotal challenge", "evolving landscape", "groundbreaking", "cornerstone")
 - Removed promotional language ("profound impact", "remarkable finding", "exciting findings")
-- Removed vague attributions ("Studies have shown") and replaced with specific trial name
+- Removed unsupported vague attributions ("Studies have shown" with no citation) and replaced with specific trial name (note: "Prior studies have shown that..." followed by citations would be preserved)
 - Removed superficial -ing phrases ("underscoring", "highlighting")
 - Removed copula avoidance ("serves as") in favor of "is"
 - Removed AI vocabulary ("Additionally", "crucial", "pivotal")
