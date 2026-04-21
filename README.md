@@ -44,7 +44,7 @@ Based on [Wikipedia's "Signs of AI writing"](https://en.wikipedia.org/wiki/Wikip
 
 > "LLMs use statistical algorithms to guess what should come next. The result tends toward the most statistically likely result that applies to the widest variety of cases."
 
-## 25 Patterns Detected (with Before/After Examples)
+## 26 Patterns Detected (with Before/After Examples)
 
 ### Content Patterns
 
@@ -95,6 +95,7 @@ Based on [Wikipedia's "Signs of AI writing"](https://en.wikipedia.org/wiki/Wikip
 | 23 | **Artificially condensed expressions** | "fatigue–sleepiness cycle", "mutual reinforcement" | "cycle of fatigue and sleepiness", "a self-reinforcing cycle, with each behavior possibly exacerbating the other" |
 | 24 | **"where" as a non-locative connector** | "...at the most intensive level, where almost daily use was..." | "...at the most intensive level, with almost daily use..." |
 | 25 | **"yield" as a result verb** | "did not yield stable estimates" | "failed to produce stable estimates" |
+| 26 | **Underused classical terms (restore)** | "proportion of, aim of, was assessed, With regard to, to elucidate, These findings suggest" | "percentage of, purpose of, was measured, With respect to, to determine, The results suggest" |
 
 ### Preserved Academic Phrases (v1.1.0)
 
@@ -128,6 +129,16 @@ This article is published under [CC-BY-4.0](https://creativecommons.org/licenses
 
 Examples for Patterns 19–25 are based on the author's (K. Matsui) observations during academic manuscript editing in sleep medicine research.
 
+Pattern 26 (Underused Classical Academic Terms) is adapted from the following papers that quantified words and phrases with decreased frequency in post-ChatGPT medical and scientific writing:
+
+> Matsui K. Delving into PubMed records: some terms in medical writing have drastically changed after the arrival of ChatGPT. *medRxiv*. 2025. doi:[10.1101/2024.05.14.24307373](https://doi.org/10.1101/2024.05.14.24307373)
+
+> Matsui K. Delving Into PubMed Records: How AI-Influenced Vocabulary has Transformed Medical Writing since ChatGPT. *Perspect Med Educ*. 2025;14(1):882-890. doi:[10.5334/pme.1929](https://doi.org/10.5334/pme.1929)
+
+> Bao T, Zhao Y, Mao J, et al. Examining linguistic shifts in academic writing before and after the launch of ChatGPT: a study on preprint papers. *Scientometrics*. 2025;130:3597-3627. doi:[10.1007/s11192-025-05341-y](https://doi.org/10.1007/s11192-025-05341-y)
+
+> Galpin R, Anderson B, Juzek TS. Exploring the Structure of AI-Induced Language Change in Scientific English. *Int FLAIRS Conf Proc*. 2025;38. doi:[10.32473/flairs.38.1.138958](https://doi.org/10.32473/flairs.38.1.138958)
+
 ## Related Work by the Author
 
 > Matsui K. Delving Into PubMed Records: How AI-Influenced Vocabulary has Transformed Medical Writing since ChatGPT. *Perspect Med Educ*. 2025 Dec 2;14(1):882-890. doi:[10.5334/pme.1929](https://doi.org/10.5334/pme.1929)
@@ -140,6 +151,7 @@ This is a paper I wrote. Using PubMed records, I measured how frequently LLMs su
 
 ## Version History
 
+- **1.2.0** - Added Pattern 26 (Underused Classical Academic Terms: restore classical expressions that AI tends to avoid, such as "percentage of", "purpose of", "was measured", "With respect to", "to determine"); enhanced Pattern 3 to recognize -ing phrases as implicit replacements for "therefore"/"thus" and added a restoration example; removed the "With respect to" line from Pattern 16 filler phrases (that substitution was the wrong direction — AI avoids "With respect to" rather than overusing it)
 - **1.1.3** - Added patterns 24 ("where" as a non-locative connector) and 25 ("yield" as a result verb); added author paper reference and Fig.1 to README
 - **1.1.2** - Pattern 13: Em dash rule upgraded to zero-tolerance elimination (no exceptions, mandatory final check step)
 - **1.1.1** - Merged compressed noun-dash phrases and vague abstractions into single "Artificially condensed expressions" pattern (23)

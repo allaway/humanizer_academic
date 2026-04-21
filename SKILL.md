@@ -1,6 +1,6 @@
 ---
 name: humanizer_academic
-version: 1.1.3
+version: 1.2.0
 description: |
   Remove signs of AI-generated writing from academic medical papers. Use when editing
   or reviewing manuscripts to make them sound more natural and professionally written.
@@ -9,6 +9,8 @@ description: |
   -ing analyses, vague attributions, AI vocabulary words, copula avoidance,
   excessive hedging, generic conclusions, informal word choices (linked/beyond/via/where/yield),
   overly assertive causal claims, and artificially condensed expressions.
+  Also restores classical academic terms that AI tends to avoid (percentage of,
+  purpose of, was measured, With respect to, to determine, hypothesis noun form).
   Preserves legitimate academic transitions (Notably, Prior studies have shown, etc.).
 allowed-tools:
   - Read
@@ -91,15 +93,23 @@ The following transitional and attribution phrases are **standard academic writi
 
 ### 3. Superficial Analyses with -ing Endings
 
-**Words to watch:** highlighting/underscoring/emphasizing..., ensuring..., reflecting/symbolizing..., contributing to..., cultivating/fostering..., encompassing..., showcasing...
+**Words to watch:** highlighting/underscoring/emphasizing..., ensuring..., reflecting/symbolizing..., contributing to..., cultivating/fostering..., encompassing..., showcasing..., suggesting..., demonstrating..., prompting...
 
-**Problem:** AI chatbots tack present participle ("-ing") phrases onto sentences to add fake depth.
+**Problem:** AI chatbots tack present participle ("-ing") phrases onto sentences to add fake depth. These -ing phrases often function as **implicit replacements for the explicit connectives "therefore" and "thus"**, both of which have declined in AI-generated academic writing. When the -ing phrase encodes a causal or conclusory relationship, restoring an explicit connective (therefore, thus, accordingly, consequently) clarifies the logic and removes the AI fingerprint.
 
 **Before:**
 > Hospitalization for heart failure occurred in 2.7% of patients receiving empagliflozin compared to 4.1% with placebo (HR 0.65; P = 0.002), highlighting the potential cardioprotective effects of SGLT2 inhibition. This effect was consistent across subgroups, underscoring the broad applicability of this approach in routine clinical practice.
 
 **After:**
 > Hospitalization for heart failure occurred in 2.7% of patients receiving empagliflozin compared to 4.1% with placebo (hazard ratio 0.65; 95% CI 0.50–0.85; P = 0.002). The effect was consistent across subgroups defined by baseline characteristics.
+
+**Alternative restoration (when the causal link should be preserved rather than removed):**
+
+**Before:**
+> The effect was consistent across subgroups, underscoring broad applicability of this approach.
+
+**After:**
+> The effect was consistent across subgroups. Accordingly, the approach is broadly applicable.
 
 ---
 
@@ -290,7 +300,6 @@ The following transitional and attribution phrases are **standard academic writi
 - "At the present time" → "Currently" or omit
 - "It is important to note that mortality was reduced" → "Mortality was reduced"
 - "The study has the ability to detect" → "The study can detect"
-- "With respect to safety endpoints" → "For safety endpoints"
 
 **EXCEPTION:** Single-word academic transitions ("Notably,", "Importantly,", "Interestingly,") are standard in research papers and should NOT be removed. Only flag them when stacked excessively (e.g., three in one paragraph).
 
@@ -437,6 +446,50 @@ The following transitional and attribution phrases are **standard academic writi
 > RI-CLPM analyses failed to produce stable, interpretable within-person cross-lagged estimates due to sparse transitions in ordinal predictors.
 
 **Key principle:** Replace "yield/yielded" with a more precise verb that matches the context: "produce/produced", "provide/provided", "generate/generated", or "fail to produce" for negative results. Reserve "yield" for contexts where it is genuinely standard (e.g., chemical/biochemical yields).
+
+---
+
+### 26. Underused Classical Academic Terms (Restore These)
+
+**Problem:** LLMs have shifted vocabulary and phrasing away from classical academic expressions. Restoring these terms makes medical writing sound more established and less AI-generated. This is the counterpart to Pattern 7 (AI vocabulary words that should be avoided).
+
+**26a. Word-level substitutions (AI preferred → restore to):**
+
+| AI version | Restore to |
+|---|---|
+| proportion of | percentage of |
+| aim of | purpose of |
+| was assessed | was measured |
+| With regard to | With respect to |
+| to elucidate | to determine |
+| a growing body of research | a growing number of studies |
+| concern | problem (only when the original sense is "serious issue") |
+
+**26b. Phrasing-level substitutions:**
+
+| AI version | Restore to |
+|---|---|
+| These findings suggest | The results suggest |
+| ultimately (sentence-end) | after all (sentence-end) |
+| First (as a discourse marker at sentence start) | To begin with |
+
+**26c. Structural restoration (nominalization and adverbialization):**
+
+- **Verb → Noun (restore nominalization)**
+  - AI: "We hypothesized that X"
+  - Human: "We tested the hypothesis that X"
+
+- **Adjective + Noun → Adverb (restore adverbialization)**
+  - AI: "A clear dose-response relationship was observed"
+  - Human: "The dose-response relationship was clearly observed"
+
+**Caveats:**
+- Apply only in formal academic contexts. Especially useful in Discussion and Introduction where interpretation and argumentation dominate.
+- The `concern` vs `problem` restoration requires judgment. When softening is truly intended (a mild concern), do not force `problem`.
+- `To begin with` is sentence-initial only. Do not replace `first` when it appears mid-sentence.
+- Do not apply these substitutions mechanically. Consider meaning, rhythm, and nearby repetition before each swap.
+
+**Cross-reference:** This pattern is the mirror of Pattern 7 (AI vocabulary to avoid). Removing AI words via Pattern 7 and restoring classical terms via Pattern 26 together balance the vocabulary toward a more human register.
 
 ---
 
