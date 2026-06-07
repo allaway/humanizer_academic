@@ -44,7 +44,7 @@ Based on [Wikipedia's "Signs of AI writing"](https://en.wikipedia.org/wiki/Wikip
 
 > "LLMs use statistical algorithms to guess what should come next. The result tends toward the most statistically likely result that applies to the widest variety of cases."
 
-## 26 Patterns Detected (with Before/After Examples)
+## 37 Patterns Detected (with Before/After Examples)
 
 ### Content Patterns
 
@@ -97,6 +97,43 @@ Based on [Wikipedia's "Signs of AI writing"](https://en.wikipedia.org/wiki/Wikip
 | 25 | **"yield" as a result verb** | "did not yield stable estimates" | "failed to produce stable estimates" |
 | 26 | **Underused classical terms (restore)** | "proportion of, aim of, was assessed, With regard to, to elucidate, These findings suggest" | "percentage of, purpose of, was measured, With respect to, to determine, The results suggest" |
 
+### Additional AI Tropes (v1.3.0)
+
+| # | Pattern | Before | After |
+|---|---------|--------|-------|
+| 27 | **Latinate bloat verbs** | "utilized... leveraged... facilitate comparison" | "used... and existing data to compare" |
+| 28 | **Vague magnitude quantifiers** | "numerous studies... a myriad of risk factors" | "several studies... hypertension, diabetes, and smoking" |
+| 29 | **Metaphorical/figurative framing** | "shed light on... pave the way... at the forefront" | "clarify... may support the development of new therapies" |
+| 30 | **Non-statistical "significant"** | "significantly improved well-being" (no test) | "substantially improved well-being" (reserve "significant" for P/CI) |
+| 31 | **Adjective inflation** | "comprehensive, robust... nuanced insights into the multifaceted nature" | State what the analysis actually did |
+
+### Self-certifying Modifiers and Formatting (v1.4.0)
+
+| # | Pattern | Before | After |
+|---|---------|--------|-------|
+| 32 | **Self-certifying modifiers** (asserting a quality instead of demonstrating it) | "a genuinely novel finding that truly transforms... it is well established that... arguably the most important" | Delete the modifier or replace with the data/citation that earns it |
+| 33 | **AI formatting artifacts** | inline `**bold**` key terms, "**Key finding:**" header lists, stray Markdown/emoji | Continuous prose (unless the journal format calls for a list) |
+
+Pattern 32 captures a single underlying move: the LLM attaches a word ("genuinely", "clearly", "it is well established that") that names the very quality the sentence is supposed to prove. The word does not create the quality — only evidence does. Pattern 7's vocabulary list was also expanded (bolstered, meticulous/meticulously, exhibited, "valuable/key insights", potential), and Pattern 16 now covers empty expletive openers ("It is worth noting", "When it comes to X").
+
+### Role Templates and Structural Tells (v1.5.0)
+
+| # | Pattern | Before | After |
+|---|---------|--------|-------|
+| 34 | **"Plays a crucial role" templates** | "Inflammation plays a crucial role in... SGLT2 inhibitors play a pivotal role in..." | State the concrete mechanism or effect (with the specific markers/numbers) |
+| 35 | **Structural monotony** (uniform sentence length, over-coordination, that-clause subjects) | "...reduced X and reduced Y and improved Z and was well tolerated and..." | Vary sentence length; subordinate or split; recast that-clause subjects |
+
+Pattern 7's watch list was further extended with medical-specific AI vocabulary from the PubMed excess-vocabulary analyses (Matsui 2025): catalyze, harness, navigate, unveil, transformative, commendable, noteworthy, invaluable, milestone, prowess, "vital role", and others — with an explicit caution not to strip ordinary words (complex, critical, essential, potential) mechanically. Pattern 26 gained a 26d sub-table of classical phrasings that *declined* after ChatGPT ("treatment of", "all patients", "at the end of").
+
+### Conversational Tells and Paste Hygiene (v1.6.0)
+
+| # | Pattern | Before | After |
+|---|---------|--------|-------|
+| 36 | **Conversational / SEO / reader-address tells** | "So what does this mean? Here's the kicker: in today's evolving landscape, you can't ignore these findings." | Third-person declarative: "These findings have direct implications for..." |
+| 37 | **Paste hygiene** (invisible/zero-width Unicode, non-breaking spaces, curly punctuation, en-dash-as-punctuation) | zero-width spaces, ` `, curly quotes/apostrophes, `…`, bullets | Plain ASCII — with a `perl` verification command — while **preserving** scientific symbols (µ, ±, β, ≥) and numeric-range en dashes (95% CI 0.50–0.85) |
+
+These two are high-precision because they never legitimately occur in formal manuscripts: any hit is almost certainly an AI artifact. Pattern 37 is a mechanical cleanup pass with a grep-style verification step (mirroring the Pattern 13 em-dash check) and explicit exceptions so confidence intervals, page ranges, and scientific notation are never corrupted.
+
 ### Preserved Academic Phrases (v1.1.0)
 
 The skill now explicitly **preserves** standard academic phrases that were previously over-corrected:
@@ -118,6 +155,7 @@ These are only flagged when used in excessive clusters or without supporting cit
 
 - [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) - Primary source for AI writing patterns
 - [WikiProject AI Cleanup](https://en.wikipedia.org/wiki/Wikipedia:WikiProject_AI_Cleanup) - Maintaining organization
+- Kobak D, et al. [Delving into LLM-assisted writing in biomedical publications through excess vocabulary](https://www.science.org/doi/10.1126/sciadv.adt3813). *Science Advances*. 2025. (Identifies the "excess vocabulary" verbs/adjectives that surged in PubMed abstracts after ChatGPT; basis for the extended Pattern 7 watch list and Patterns 30–35.)
 
 ### Examples Source
 
@@ -151,6 +189,10 @@ This is a paper I wrote. Using PubMed records, I measured how frequently LLMs su
 
 ## Version History
 
+- **1.6.0** - Added Pattern 36 (conversational/SEO/reader-address tells: hook openers, "in today's landscape", second-person address, rhetorical questions → third-person declarative) and Pattern 37 (paste hygiene: remove invisible/zero-width Unicode characters, non-breaking and exotic spaces, curly quotes/apostrophes, ellipsis and bullet characters, and en dashes used as clause punctuation — with a perl verification command and explicit exceptions for scientific symbols and numeric-range en dashes). Added a second mandatory final-check step for invisible/typographic artifacts
+- **1.5.0** - Added Pattern 34 ("plays a crucial/vital/key/pivotal role" templates → state the concrete mechanism) and Pattern 35 (structural monotony: uniform sentence length/low burstiness, phrasal over-coordination, that-clauses as grammatical subjects). Substantially extended Pattern 7's watch list with medical-specific AI vocabulary from the PubMed excess-vocabulary analyses (verbs, adjectives, adverbs, nouns, phrases), with a caution against mechanically stripping ordinary medical words. Added Pattern 26d (classical phrasings that declined after ChatGPT: "treatment of", "all patients", "at the end of"). Expanded Pattern 33 to cover excess exclamation marks and ellipses
+- **1.4.0** - Added Pattern 32 (self-certifying modifiers: words that assert a quality instead of demonstrating it — genuinely/truly/clearly/remarkably, "it is well established that", arguably; the word never creates the quality, only evidence does) and Pattern 33 (AI formatting artifacts: inline boldface, "Key finding:" header lists, stray Markdown/emoji → continuous prose). Expanded Pattern 7's vocabulary list (bolstered, meticulous/meticulously, exhibited, "valuable/key insights", potential) with citation to the PubMed excess-vocabulary analyses, and expanded Pattern 16 to cover empty expletive openers ("It is worth noting", "It should be noted", "When it comes to X")
+- **1.3.0** - Added five new AI-trope patterns: 27 (Latinate bloat verbs: utilize/leverage/facilitate → use/help/enable), 28 (vague magnitude quantifiers: numerous/myriad/plethora → specific counts or "many/several"), 29 (metaphorical framing: shed light on/pave the way/at the forefront → literal phrasing), 30 (non-statistical use of "significant"/"significantly" → reserve for reported statistical significance; otherwise "substantial/marked"), and 31 (self-praising adjective inflation: comprehensive/robust/holistic/multifaceted/nuanced)
 - **1.2.0** - Added Pattern 26 (Underused Classical Academic Terms: restore classical expressions that AI tends to avoid, such as "percentage of", "purpose of", "was measured", "With respect to", "to determine"); enhanced Pattern 3 to recognize -ing phrases as implicit replacements for "therefore"/"thus" and added a restoration example; removed the "With respect to" line from Pattern 16 filler phrases (that substitution was the wrong direction — AI avoids "With respect to" rather than overusing it)
 - **1.1.3** - Added patterns 24 ("where" as a non-locative connector) and 25 ("yield" as a result verb); added author paper reference and Fig.1 to README
 - **1.1.2** - Pattern 13: Em dash rule upgraded to zero-tolerance elimination (no exceptions, mandatory final check step)
