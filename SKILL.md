@@ -1,6 +1,6 @@
 ---
 name: humanizer_academic
-version: 1.2.0
+version: 1.6.0
 description: |
   Remove signs of AI-generated writing from academic medical papers. Use when editing
   or reviewing manuscripts to make them sound more natural and professionally written.
@@ -9,6 +9,18 @@ description: |
   -ing analyses, vague attributions, AI vocabulary words, copula avoidance,
   excessive hedging, generic conclusions, informal word choices (linked/beyond/via/where/yield),
   overly assertive causal claims, and artificially condensed expressions.
+  Also flags Latinate bloat verbs (utilize/leverage/facilitate), vague magnitude
+  quantifiers (numerous/myriad/plethora), figurative framing (shed light on/pave the
+  way/at the forefront), non-statistical use of "significant", self-praising
+  adjective inflation (comprehensive/robust/holistic/nuanced), self-certifying
+  modifiers that assert a quality instead of demonstrating it (genuinely/truly/clearly/
+  it is well established that), AI formatting artifacts (inline boldface, header lists),
+  "plays a crucial role" role-templates, and structural monotony (uniform sentence length,
+  over-coordination). Vocabulary list extended with medical-specific AI words from PubMed
+  excess-vocabulary analyses (Matsui 2025). Also strips conversational/SEO tells that never
+  belong in manuscripts (Here's the kicker, In today's landscape, reader address, rhetorical
+  questions) and performs a paste-hygiene pass that removes invisible/zero-width Unicode
+  characters, non-breaking spaces, and curly punctuation while preserving scientific symbols.
   Also restores classical academic terms that AI tends to avoid (percentage of,
   purpose of, was measured, With respect to, to determine, hypothesis noun form).
   Preserves legitimate academic transitions (Notably, Prior studies have shown, etc.).
@@ -161,9 +173,19 @@ The following transitional and attribution phrases are **standard academic writi
 
 ### 7. Overused "AI Vocabulary" Words
 
-**High-frequency AI words:** Additionally, align with, crucial, delve, emphasizing, enduring, enhance, fostering, garner, highlight (verb), interplay, intricate/intricacies, key (adjective), landscape (abstract noun), pivotal, showcase, tapestry (abstract noun), testament, underscore (verb), valuable, vibrant
+**High-frequency AI words:** Additionally, align with, bolstered, crucial, delve, emphasizing, enduring, enhance, exhibited (prefer "showed"/"demonstrated"), fostering, garner, highlight (verb), insights (esp. "valuable/key insights"), interplay, intricate/intricacies, key (adjective), landscape (abstract noun), meticulous/meticulously, pivotal, potential (as a vague noun, "the potential of X"), showcase, tapestry (abstract noun), testament, underscore (verb), valuable, vibrant
 
-**Problem:** These words appear far more frequently in post-2023 text. They often co-occur.
+**Problem:** These words appear far more frequently in post-2023 text. They often co-occur. Quantitative analyses of 14 million PubMed abstracts (2010–2024) confirm an abrupt rise in these style words after ChatGPT's release; "delves", "showcasing", "underscores", "crucial", "comprehensive", "meticulous", and "insights" are among the most reliable markers.
+
+**Extended medical-specific watch list (Matsui 2025; PubMed analysis).** The following words rose sharply in medical abstracts after ChatGPT. Treat them as *flags for review*, not automatic deletions — many are legitimate in moderation. Flag them when they cluster, when they replace a plainer word, or when they add tone rather than content:
+
+- **Verbs:** catalyze, embark, emerge, encompass, endeavor, elucidate, excel, fortify, foster, grapple, harness, illuminate, juxtapose, navigate, necessitate, outperform, revolutionize, scrutinize, surpass, transcend, transform, unearth, unveil
+- **Adjectives:** actionable, commendable, exceptional, exhaustive, expansive, groundbreaking, ingenious, innovative, intriguing, invaluable, noteworthy, potent, transformative, versatile, well-rounded
+- **Adverbs:** aptly, compellingly, effortlessly, impressively, methodically, predominantly, primarily, profoundly, seamlessly, strategically, thereby, thoroughly, thoughtfully
+- **Nouns:** advancement, capability, ecosystem, enhancement, essence, journey, milestone, pipeline, prowess, realm, utilization
+- **Phrases:** deep dive, driving force, game changer, knowledge gap, vital role, shed light
+
+**Caution:** Words such as *complex, critical, essential, significant, potential, address, offer, integrate, finding* appear on the rise list but are also ordinary medical vocabulary. Do not strip them mechanically; judge by clustering and whether a plainer word fits. (See also Pattern 30 for "significant" specifically.)
 
 **Before:**
 > Additionally, empagliflozin reduced the risk of hospitalization for heart failure or cardiovascular death by 34%, a pivotal finding in the evolving therapeutic landscape. The number needed to treat was 35 over 3 years, underscoring the crucial clinical value of this intervention.
@@ -299,7 +321,12 @@ The following transitional and attribution phrases are **standard academic writi
 - "Due to the fact that patients were excluded" → "Because patients were excluded"
 - "At the present time" → "Currently" or omit
 - "It is important to note that mortality was reduced" → "Mortality was reduced"
+- "It is worth noting that mortality was reduced" → "Mortality was reduced"
+- "It should be noted that the effect was small" → "The effect was small"
+- "When it comes to safety, the drug was well tolerated" → "The drug was well tolerated"
 - "The study has the ability to detect" → "The study can detect"
+
+**Note:** "It is worth noting", "It should be noted", "It is important to recognize", and "When it comes to X" are empty expletive openers (subject + copula + no information). Delete the opener and state the claim directly. This is distinct from the single-word transitions ("Notably,", "Importantly,") preserved above, which are retained.
 
 **EXCEPTION:** Single-word academic transitions ("Notably,", "Importantly,", "Interestingly,") are standard in research papers and should NOT be removed. Only flag them when stacked excessively (e.g., three in one paragraph).
 
@@ -483,6 +510,16 @@ The following transitional and attribution phrases are **standard academic writi
   - AI: "A clear dose-response relationship was observed"
   - Human: "The dose-response relationship was clearly observed"
 
+**26d. Additional terms that DECLINED in medical writing after ChatGPT (restore where natural):**
+
+The PubMed analyses also found these classical phrasings fell out of use as AI-assisted writing rose. Prefer them when they fit:
+
+| AI tends toward | Classical phrasing to restore |
+|---|---|
+| management of / approach to (the disease) | treatment of |
+| the cohort / the participants / the sample | all patients (when the whole sample is meant) |
+| by the conclusion of / at the close of | at the end of |
+
 **Caveats:**
 - Apply only in formal academic contexts. Especially useful in Discussion and Introduction where interpretation and argumentation dominate.
 - The `concern` vs `problem` restoration requires judgment. When softening is truly intended (a mild concern), do not force `problem`.
@@ -490,6 +527,267 @@ The following transitional and attribution phrases are **standard academic writi
 - Do not apply these substitutions mechanically. Consider meaning, rhythm, and nearby repetition before each swap.
 
 **Cross-reference:** This pattern is the mirror of Pattern 7 (AI vocabulary to avoid). Removing AI words via Pattern 7 and restoring classical terms via Pattern 26 together balance the vocabulary toward a more human register.
+
+---
+
+### 27. Latinate Bloat Verbs ("utilize", "leverage", "facilitate")
+
+**Problem:** LLMs reach for longer Latinate verbs where a plain verb is more precise and more common in human academic writing. "Utilize" almost never means anything different from "use"; "leverage" is business jargon; "facilitate" usually means "help", "enable", or "allow".
+
+**Words to watch:** utilize/utilization, leverage, facilitate, employ (when it just means "use"), harness (figurative), capitalize on
+
+| AI version | Restore to |
+|---|---|
+| utilize / utilized | use / used |
+| leverage | use / draw on |
+| facilitate | help / enable / allow |
+| employ (= use) | use |
+
+**Before:**
+> We utilized a validated questionnaire and leveraged existing registry data to facilitate comparison across the three sites.
+
+**After:**
+> We used a validated questionnaire and existing registry data to compare outcomes across the three sites.
+
+**Caveat:** Keep these verbs where they carry a distinct technical meaning ("the assay utilizes a fluorescent probe" is acceptable, though "uses" is still cleaner; "employ" is fine for staff/employment contexts).
+
+---
+
+### 28. Vague Magnitude Quantifiers ("numerous", "a myriad of", "a plethora of")
+
+**Problem:** LLMs gesture at quantity with inflated, imprecise quantifiers instead of giving a number, a citation count, or a plain "many"/"several". Academic writing favors specificity.
+
+**Words to watch:** numerous, a myriad of, a plethora of, a multitude of, a wide range/array of, countless, various (when it means "several"), a host of
+
+**Before:**
+> Numerous studies have implicated a myriad of risk factors in a wide range of cardiovascular outcomes.
+
+**After:**
+> Several studies have implicated hypertension, diabetes, and smoking in cardiovascular outcomes. [or: "Twelve studies (refs) have implicated..."]
+
+**Key principle:** Replace the vague quantifier with a specific count when one is available, the actual items when they are few, or a plain "many"/"several" otherwise. Do not preserve "a myriad of"/"a plethora of" in formal prose.
+
+---
+
+### 29. Metaphorical and Figurative Framing ("shed light on", "pave the way", "at the forefront")
+
+**Problem:** LLMs decorate scientific claims with stock metaphors that add no information and read as journalistic rather than academic. State the literal relationship instead.
+
+**Words to watch:** shed light on, pave the way for, navigate the complexities of, bridge the gap, at the forefront of, a cornerstone of, the realm of, unlock, unravel, illuminate, open the door to, lay the groundwork for
+
+| AI metaphor | Literal replacement |
+|---|---|
+| shed light on / illuminate | clarify / help explain |
+| pave the way for / open the door to / lay the groundwork for | enable / may support / may lead to |
+| navigate the complexities of | address / manage |
+| bridge the gap | address the gap |
+| at the forefront of | among the first / a leading [area] |
+| a cornerstone of | central to / a key component of |
+| the realm of | the field of / the area of |
+| unlock / unravel | reveal / identify |
+
+**Before:**
+> These findings shed light on the pathophysiology of heart failure and pave the way for novel therapies at the forefront of cardiovascular medicine.
+
+**After:**
+> These findings clarify the pathophysiology of heart failure and may support the development of new therapies.
+
+---
+
+### 30. Non-statistical Use of "Significant" / "Significantly"
+
+**Problem:** In medical writing, "significant" and "significantly" should be reserved for **statistical significance** reported with a P value, confidence interval, or explicit test. LLMs use them loosely as intensifiers ("significantly improved well-being", "a significant advance"), which is imprecise and can mislead readers into inferring a statistical result that was never tested.
+
+**Rule:** If a statistical test supports the claim, keep "significant" and cite the statistic. If the claim is about magnitude or importance only, use **substantial(ly)**, **marked(ly)**, **considerable**, **important**, or **large** instead.
+
+**Before:**
+> Empagliflozin significantly improved patient-reported well-being and represents a significant advance in diabetes care.
+
+**After:**
+> Empagliflozin substantially improved patient-reported well-being and represents an important advance in diabetes care.
+
+**Still correct (statistical use — keep "significantly"):**
+> Hospitalization for heart failure was significantly lower with empagliflozin (HR 0.65; 95% CI 0.50–0.85; P = 0.002).
+
+**Key principle:** One quick test — can you point to the P value or CI? If not, "significant" is the wrong word.
+
+---
+
+### 31. Adjective Inflation ("comprehensive", "robust", "holistic", "multifaceted", "nuanced")
+
+**Problem:** LLMs prepend evaluative adjectives that assert rigor, breadth, or depth without adding information. These adjectives let the writer claim a quality rather than demonstrate it. Either delete the adjective or replace it with the concrete fact that justifies it.
+
+**Words to watch:** comprehensive, robust, holistic, multifaceted, nuanced, rich, in-depth, thorough, extensive, detailed (when self-applied to one's own analysis)
+
+**Before:**
+> We conducted a comprehensive, robust analysis that provides nuanced insights into the multifaceted nature of heart failure.
+
+**After:**
+> We analyzed mortality, hospitalization for heart failure, and renal outcomes across prespecified subgroups.
+
+**Key principle:** Replace the self-praising adjective with what the analysis actually did, or remove it. "Robust" is acceptable only in its technical sense (e.g., "robust standard errors", "the result was robust to sensitivity analyses"), not as a synonym for "strong" evidence.
+
+---
+
+### 32. Self-certifying Modifiers (Asserting a Quality Instead of Demonstrating It)
+
+**Problem:** LLMs try to convince the reader of a sentence's premise by attaching a modifier that simply *asserts* the quality in question. But the word does not create the quality. Saying a finding is "genuinely novel" does not make it more genuine; saying a result "clearly demonstrates" something does not make it clear; saying "it is well established that X" does not establish X. The modifier substitutes the author's claimed conviction for the evidence that should produce it. In academic writing, a premise earns its force from data and citations, not from an adverb. These words also tend to stack ("a truly remarkable and genuinely important result").
+
+**The underlying move:** the modifier names the very property the sentence is supposed to prove. Whenever you can ask "but does adding this word actually make it so?" and the answer is no, the word is doing rhetorical work the evidence should be doing. Delete it, or replace it with the fact that justifies the emphasis.
+
+**Three flavors of the same move:**
+
+**32a. Emphasis adverbs fused to an adjective or verb** — *genuinely, truly, really, remarkably, incredibly, simply, undeniably, surprisingly, clearly, obviously, evidently, importantly/crucially* (as a bare intensifier on an adjective).
+
+**Before:**
+> This is a genuinely novel finding that truly transforms our understanding of heart failure and is remarkably consistent across all subgroups.
+
+**After:**
+> This finding is novel and was consistent across all prespecified subgroups.
+
+**32b. Self-certifying claims of consensus or certainty** — *it is well known that, it is well established that, it is widely accepted that, undoubtedly, without a doubt, needless to say, of course, as everyone knows, it goes without saying.* These assert that a community already agrees, in place of a citation.
+
+**Before:**
+> It is well established that SGLT2 inhibitors are undoubtedly the cornerstone of modern therapy.
+
+**After:**
+> SGLT2 inhibitors reduce cardiovascular events in patients with type 2 diabetes (refs).
+
+**32c. Hedged self-assertion** — *arguably, it could be argued that, one might say.* These claim a debatable point as if stating it settles it.
+
+**Before:**
+> Empagliflozin is arguably the most important advance in cardiovascular therapy of the decade.
+
+**After:**
+> Empagliflozin reduced cardiovascular death by 38% in the EMPA-REG OUTCOME trial.
+
+**Key principle:** Delete the self-certifying modifier, or replace it with the quantitative fact or citation that justifies the emphasis ("consistent across all 12 subgroups", "a 34% reduction", "(refs)"). Be especially alert to "genuinely" and "truly", which rarely appear in pre-2023 medical prose. This pattern is the stance-marker counterpart to Pattern 5 (vague attributions): both replace evidence with an assertion that evidence exists.
+
+**Boundary with preserved transitions:** This pattern does NOT target the sentence-initial transitions "Notably," / "Importantly," / "Interestingly," followed by a comma and a substantive point — those remain preserved (see the top of this guide). The target is the modifier fused to the claim it is trying to prove ("genuinely important", "truly transforms", "clearly demonstrates", "it is well established that"). When in doubt: if removing the word loses no information, remove it.
+
+---
+
+### 33. AI Formatting Artifacts (Excessive Boldface and Inline-Header Lists)
+
+**Problem:** AI drafts mechanically bold "key" terms inside running text and convert prose into bulleted lists with bolded lead-in headers followed by colons. Medical manuscripts are written as continuous prose; this formatting is a strong visual tell and is rarely appropriate outside genuinely structured elements (e.g., a structured abstract or a defined inclusion-criteria list that the target journal expects).
+
+**Watch for:** inline `**bolded**` key terms in body text, "**Key takeaway:**"-style lead-ins, and paragraphs broken into bullet points where prose is expected. Also remove stray Markdown emphasis (`*italics*`, `**bold**`) and any emoji.
+
+**Before:**
+> **Primary outcome:** The primary outcome was a composite of cardiovascular death and heart failure hospitalization. **Key finding:** Empagliflozin reduced this outcome by **34%**. **Safety:** The drug was well tolerated.
+
+**After:**
+> The primary outcome was a composite of cardiovascular death and hospitalization for heart failure. Empagliflozin reduced this outcome by 34% and was well tolerated.
+
+**Key principle:** Convert AI bullet/bold scaffolding back into prose paragraphs unless the journal's format genuinely calls for a list or a defined heading. Preserve legitimate emphasis only where a journal uses it (e.g., gene symbols in italics per nomenclature rules). Also remove excess exclamation marks and ellipses ("...") used for effect; formal medical prose uses neither.
+
+---
+
+### 34. "Plays a [crucial/vital/key/pivotal] Role" and Related Role Templates
+
+**Problem:** "X plays a [vital/crucial/key/central/pivotal/significant] role in Y" is one of the single most recognizable AI constructions (and "vital role" is a confirmed excess phrase in post-ChatGPT medical abstracts). It combines two patterns already in this guide — copula avoidance (Pattern 8) and significance inflation (Pattern 1) — into a fixed template that asserts importance while saying nothing about *what* X actually does. Replace it with the specific mechanism or effect.
+
+**Watch for:** plays a [adjective] role in, has a [adjective] role in, is instrumental in, contributes significantly to, serves a [adjective] function in, is a key driver/player/contributor in
+
+**Before:**
+> Inflammation plays a crucial role in the pathogenesis of heart failure, and SGLT2 inhibitors play a pivotal role in mitigating this process.
+
+**After:**
+> Inflammation contributes to the pathogenesis of heart failure. SGLT2 inhibitors reduce circulating inflammatory markers, including interleukin-6 and high-sensitivity C-reactive protein.
+
+**Key principle:** State the concrete relationship (what causes what, by how much, through what mechanism). If the mechanism is unknown, say so directly ("the mechanism is not fully understood") rather than papering over it with "plays a role."
+
+---
+
+### 35. Structural Monotony (Uniform Sentence Length and Over-coordination)
+
+**Problem:** Beyond word choice, AI text has a recognizable *shape*. Sentences come out at strikingly uniform length and clause count (low "burstiness"; detection tools flag a coefficient of variation in sentence length below ~0.35), clauses are strung together with "and", and points are forced into parallel triples. Human academic prose varies: a short declarative sentence next to a longer qualified one. This pattern is structural and complements the lexical patterns above.
+
+**Three structural tells to fix:**
+
+**35a. Uniform sentence length / rhythm.** Several consecutive sentences of nearly identical length and a single clause each read as machine-generated. Vary the rhythm: combine two short related sentences, or split an overloaded one. Let at least one sentence be noticeably shorter.
+
+**35b. Phrasal coordination overuse ("and ... and ...").** AI chains coordinate elements where a human would subordinate or split.
+
+**Before:**
+> Empagliflozin reduced hospitalization and it reduced cardiovascular death and it improved renal outcomes and it was well tolerated and it had a favorable safety profile.
+
+**After:**
+> Empagliflozin reduced hospitalization for heart failure, cardiovascular death, and renal events. It was well tolerated.
+
+**35c. That-clauses as grammatical subjects.** AI overuses "That X is true suggests Y." Recast with a concrete subject.
+
+**Before:**
+> That the effect persisted across all subgroups suggests broad applicability.
+
+**After:**
+> The effect persisted across all prespecified subgroups, which suggests broad applicability.
+
+**Key principle:** Read the passage aloud. If every sentence has the same length and march, vary it. This is the structural counterpart to Pattern 10 (rule of three) and Pattern 11 (elegant variation): together they target the *shape* of AI prose, not just its vocabulary.
+
+---
+
+### 36. Conversational, SEO, and Reader-Address Tells
+
+**Problem:** LLMs are trained heavily on blog posts and marketing copy, so they inject conversational hooks, direct second-person address, rhetorical questions, and SEO scaffolding. **None of these ever belong in a formal medical manuscript** — which makes them high-precision tells: a single occurrence is a near-certain sign of AI drafting. Remove them entirely and state the content as a third-person declarative.
+
+**Watch for:**
+
+- **Hook openers and listicle scaffolding:** "Here's the kicker", "Here's the thing", "Here's what most people miss", "But here's the deal", "The truth is", "Make no mistake", "Let's be honest", "Let's dive in", "Let's explore", "Let's take a closer look", "Buckle up", "Without further ado", "Spoiler:", "Fun fact:", "Pro tip:", "Bottom line:", "TL;DR", "Stay tuned", "Read on"
+- **Time-cliché openers:** "In today's [fast-paced / ever-evolving / competitive / modern] world / landscape / era / age of ...", "Now more than ever"
+- **Direct reader address (second person):** "you", "your", "imagine", "picture this", "trust me", "you're not imagining it", "you might be wondering", "rest assured", "Curious what others think"
+- **Rhetorical questions as openers:** "So what does this mean for patients?", "But why does this matter?", "Sound familiar?"
+- **Reader-funnel framing:** "Whether you're a clinician or a researcher, ...", "Look no further", "the key takeaway is ..."
+
+**Before:**
+> So what does this all mean for patients? Here's the kicker: in today's rapidly evolving landscape of diabetes care, you can't afford to ignore these findings. The truth is, they're game-changing.
+
+**After:**
+> These findings have direct implications for the management of patients with type 2 diabetes and elevated cardiovascular risk.
+
+**Key principle:** Medical manuscripts address an expert audience in the third person. Remove every hook, rhetorical question, and "you"/"your" address, and convert to a direct declarative statement. (See also Pattern 4 (promotional language) and Pattern 18 (generic conclusions).)
+
+---
+
+### 37. Paste Hygiene: Invisible Characters and Non-standard Typography (ZERO TOLERANCE)
+
+**Problem:** Text pasted from AI chat interfaces carries non-printing and non-ASCII characters that no one types on a keyboard: zero-width spaces, non-breaking spaces, word joiners, and Unicode punctuation used as a softer substitute for plain marks. These are invisible on screen but are flagged by AI-detection tools and corrupt journal submission systems, reference managers, and plain-text pipelines. Because a human writing in a normal editor never produces them, **any occurrence is an artifact and must be removed.**
+
+**Find and replace (this is a cleanup pass, not a judgment call):**
+
+| Character | Code point | Replace with |
+|---|---|---|
+| Zero-width space | U+200B | delete |
+| Zero-width non-joiner / joiner | U+200C / U+200D | delete |
+| Word joiner | U+2060 | delete |
+| Byte-order mark / ZW no-break space | U+FEFF | delete |
+| Soft hyphen | U+00AD | delete |
+| Left-to-right / right-to-left marks | U+200E / U+200F | delete |
+| Non-breaking space | U+00A0 | normal space |
+| Narrow no-break space | U+202F | normal space |
+| En / em / thin / hair / figure spaces | U+2002–U+200A, U+2007 | normal space |
+| Curly double quotes | U+201C / U+201D | straight `"` (see Pattern 15) |
+| Curly single quotes / apostrophe | U+2018 / U+2019 | straight `'` |
+| Horizontal ellipsis | U+2026 | three periods `...` (and consider removing; see Pattern 33) |
+| Bullet | U+2022 | restructure into prose (see Pattern 33) |
+| En dash used as clause punctuation | U+2013 | eliminate like an em dash (see Pattern 13) |
+
+**IMPORTANT exceptions — do NOT remove these legitimate characters:**
+- **En dash in a numeric, statistical, or page range** ("95% CI 0.50–0.85", "2010–2024", "pp. 1384–1395") is correct typography. Keep it (or convert to a hyphen only if the journal's plain-text format requires). **Never corrupt a confidence interval or page range.**
+- **Scientific symbols:** µ (micro), ±, °, ×, ≥, ≤, ≈, →, Greek letters (α, β, γ, κ, etc.), degree and temperature signs, and italic gene symbols. These are required and must be preserved.
+
+**Verification step (run on the final output):**
+
+```bash
+# Flags lines containing invisible/whitespace-substitute or curly-punctuation artifacts.
+# Legitimate scientific symbols (µ, ±, Greek, range en dashes) are NOT matched.
+# The -CSD flag makes perl decode input as UTF-8 (required, or nothing matches).
+perl -CSD -ne 'print "$.: $_" if /[\x{200B}\x{200C}\x{200D}\x{2060}\x{FEFF}\x{00AD}\x{200E}\x{200F}\x{00A0}\x{202F}\x{2002}-\x{200A}\x{201C}\x{201D}\x{2018}\x{2019}\x{2026}\x{2022}]/' yourfile.txt
+```
+
+If the command prints any line, fix the flagged characters and run it again until it returns nothing.
+
+**Key principle:** This is a mechanical hygiene pass. Normalize invisible and substitute characters to plain ASCII, but preserve legitimate scientific notation and numeric-range en dashes.
 
 ---
 
@@ -504,8 +802,9 @@ The following transitional and attribution phrases are **standard academic writi
    - Maintains data integrity (numbers, statistics, findings)
    - Uses simple constructions (is/are/has) where appropriate
    - Avoids promotional or inflated language
-5. **MANDATORY FINAL CHECK:** Search your output for the em dash character "—". If ANY remain, replace them immediately. Zero em dashes allowed in final output.
-6. Present the humanized version
+5. **MANDATORY FINAL CHECK (em dashes):** Search your output for the em dash character "—". If ANY remain, replace them immediately. Zero em dashes allowed in final output.
+6. **MANDATORY FINAL CHECK (invisible/typographic artifacts):** Run the Pattern 37 verification command (or scan manually) for zero-width characters, non-breaking spaces, curly quotes, ellipses, and en dashes used as clause punctuation. Remove or normalize every hit, preserving only legitimate scientific symbols and numeric-range en dashes. The output must be clean ASCII apart from required notation.
+7. Present the humanized version
 
 ## Output Format
 
